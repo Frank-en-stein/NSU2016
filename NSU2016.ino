@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
-//this is git test
+//this is part isnt working
 SoftwareSerial mySerial(3, 2);
 
 #define Kp 42
