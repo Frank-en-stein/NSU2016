@@ -1,11 +1,12 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
-//this is part isnt working
+
 SoftwareSerial mySerial(3, 2);
 
-#define Kp 42
-#define Kd 190
+#define Kp 45
+#define Kd 275
 #define Ki 0.0
+#define SETTLE_DELAY 5
 
 #define MAX 250
 #define revMAX 150
@@ -47,8 +48,9 @@ SoftwareSerial mySerial(3, 2);
 #define calibrationSpeed 120
 
 bool blackline= true;
+bool leftPrefer=true;
 
-int sw;
+int sw,sw2;
 int integral=0;
 int speedL = THROTTLE;
 int speedR = THROTTLE;
@@ -130,19 +132,41 @@ void setup()
   //analogWrite(motorR, 255);
 
   //while(1) wheel(0, -250);
+  int temp;
   while(1) {
-    sw = switchread();
-    if(sw == 0 || sw == 1) continue;
-//    else if(sw == 2) {
-//      threshholdread();
-//    }
-    else if(sw == 2) {
-      //while(1) wheel(speedL, speedR);
-      delay(1000);
-      blindLeft90();
-      //blindRight90();
+    do{
+      temp = switchread();
+    }while(temp==0);
+    sw = temp;
+    do{
+      temp = switchread();
+    }while(temp==sw);
+    do{
+      temp = switchread();
+    }while(temp==0);
+    sw2 = temp;
+    do{
+      temp = switchread();
+    }while(temp==sw2);
+    do{
+      temp = switchread();
+    }while(temp!=0);
+    
+    if(sw == 2 && sw2 == 2) {
+      threshholdread();
     }
-    else if(sw == 3) {
+    else if(sw == 2 && sw2 == 3) {
+      leftPrefer=false;
+      beepbuzzer();
+      delay(100);
+    }
+    else if(sw == 3 && sw2 == 2) {
+      leftPrefer=true;
+      beepbuzzer();
+      delay(100);
+      beepbuzzer();
+    }
+    else if(sw == 3 && sw2 == 3) {
       threshholdget();
       break;
     }
@@ -157,7 +181,7 @@ void setup()
 void loop()
 {//wallget(); wallfollowRight();return;
   lineFollowing();
-
+  delay(SETTLE_DELAY);
   /*Serial.print(rightMotorReading);
   Serial.print(" ");
   Serial.print(obj_found);
@@ -182,19 +206,13 @@ void loop()
 //      Serial.print(blackline);
 //      Serial.println(' ');
 //      return;
-//  if((analogRead(L)>threshhold[1] && analogRead(CL)>threshhold[2]) && analogRead(C)>threshhold[3] && (analogRead(CR)>threshhold[4] && analogRead(R)>threshhold[5])){
-//    leftTurn();
-//  }
-//       if(S[0]+S[1]==2 && S[6]==0) {
-//                        hardbreak();
-//                        delay(10);
-//                        irUpdate();
-//                        if(S[3]+S[0]==2) {
-//                          intersection_LeftTurn();
-//                          outOfLine = notOut;
-//                        }
-//       }
-//       else 
+       if(S[0]+S[1]+S[2]==3 && S[6]+S[5]==0) {
+                        hardbreak();
+                        delay(10);
+                        intersection_LeftTurn();
+                        outOfLine = notOut;
+       }
+       else 
        if(currentError == -7) {
                         if(outOfLine == leftOut) {
 				stop();
@@ -227,11 +245,11 @@ void loop()
                                 delay(30);
                                 //LeftTurn();
                                 wallget();
-                                if(SL>0 || SR>0) 
+                                if(SL>0 || SR>0)    //originally it should be SL>0 && SR>0
                                 {
                                   while(irUpdate()==0) {
                                     wallget();
-                                    while(SR>0) {
+                                    while(SR>0) {       
                                       if(SM>0 && SM<18) {
                                         hardbreak();
                                         delay(20);
