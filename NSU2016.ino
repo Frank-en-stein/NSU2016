@@ -206,9 +206,6 @@ void loop()
 //      Serial.print(blackline);
 //      Serial.println(' ');
 //      return;
-//  if((analogRead(L)>threshhold[1] && analogRead(CL)>threshhold[2]) && analogRead(C)>threshhold[3] && (analogRead(CR)>threshhold[4] && analogRead(R)>threshhold[5])){
-//    leftTurn();
-//  }
        if(S[0]+S[1]+S[2]==3 && S[6]+S[5]==0) {
                         hardbreak();
                         delay(10);
