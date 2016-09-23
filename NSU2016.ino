@@ -245,11 +245,11 @@ void loop()
                                 delay(30);
                                 //LeftTurn();
                                 wallget();
-                                if(SL>0 || SR>0) 
+                                if(SL>0 || SR>0)    //originally it should be SL>0 && SR>0
                                 {
                                   while(irUpdate()==0) {
                                     wallget();
-                                    while(SR>0) {
+                                    while(SR>0) {       
                                       if(SM>0 && SM<18) {
                                         hardbreak();
                                         delay(20);
