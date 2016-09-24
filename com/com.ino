@@ -10,9 +10,9 @@
 #define trig3 6
 #define echo3 7
 
-NewPing sonarL(trig1, echo1, max_distance);
-NewPing sonarR(trig2, echo2, max_distance);
-NewPing sonarM(trig3, echo3, obstacle_distance);
+NewPing sonarL(trig3, echo3, max_distance);
+NewPing sonarR(trig1, echo1, max_distance);
+NewPing sonarM(trig2, echo2, obstacle_distance);
 
 SoftwareSerial mySerial(2, 3); // RX, TX
 
