@@ -1,4 +1,4 @@
-#include <SoftwareSerial.h>
+#include <AltSoftSerial.h>
 #include <NewPing.h>
 
 #define trig1 4
@@ -14,7 +14,7 @@ NewPing sonarL(trig3, echo3, max_distance);
 NewPing sonarR(trig1, echo1, max_distance);
 NewPing sonarM(trig2, echo2, obstacle_distance);
 
-SoftwareSerial mySerial(2, 3); // RX, TX
+AltSoftSerial mySerial(2, 3); // RX, TX
 
 
 void setup() {

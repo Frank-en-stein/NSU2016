@@ -1,7 +1,8 @@
-#include <SoftwareSerial.h>
+#include <AltSoftSerial.h>
+
 #include <EEPROM.h>
 
-SoftwareSerial mySerial(3, 2);
+AltSoftSerial mySerial(3, 2);
 
 #define Kp 45
 #define Kd 275
