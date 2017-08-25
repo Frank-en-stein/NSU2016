@@ -11,16 +11,16 @@ SoftwareSerial mySerial(3, 2);
 #define MAX 250
 #define revMAX 150
 
-#define THROTTLE 190
-#define SAFE_THROTTLE 90
+#define THROTTLE 250
+#define SAFE_THROTTLE 150
 
-#define ML A7
-#define L A6
-#define CL A5
-#define C A4
-#define CR A3
-#define R  A2
-#define MR A1
+#define ML A6
+#define L A5
+#define CL A4
+#define C A3
+#define CR A2
+#define R  A1
+#define MR A0
 
 #define relax 100
 #define leftrelax 375
@@ -34,11 +34,11 @@ SoftwareSerial mySerial(3, 2);
 #define Switch  A0
 
 #define motorR 6
-#define motorRp 8
-#define motorRn 9
+#define motorRp 9
+#define motorRn 8
 #define motorL 5
-#define motorLp 7
-#define motorLn 4
+#define motorLp 4
+#define motorLn 7
 #define buzzer 13
 
 #define leftOut 1
@@ -131,50 +131,51 @@ void setup()
   //digitalWrite(motorRn, HIGH);
   //analogWrite(motorR, 255);
 
-  //while(1) wheel(0, -250);
+  //while(1) wheel(250, 250);
   int temp;
-  while(1) {
-    do{
-      temp = switchread();
-    }while(temp==0);
-    sw = temp;
-    do{
-      temp = switchread();
-    }while(temp==sw);
-    do{
-      temp = switchread();
-    }while(temp==0);
-    sw2 = temp;
-    do{
-      temp = switchread();
-    }while(temp==sw2);
-    do{
-      temp = switchread();
-    }while(temp!=0);
-    
-    if(sw == 2 && sw2 == 2) {
-      threshholdread();
-    }
-    else if(sw == 2 && sw2 == 3) {
-      leftPrefer=false;
-      beepbuzzer();
-      delay(100);
-    }
-    else if(sw == 3 && sw2 == 2) {
-      leftPrefer=true;
-      beepbuzzer();
-      delay(100);
-      beepbuzzer();
-    }
-    else if(sw == 3 && sw2 == 3) {
-      threshholdget();
-      break;
-    }
-  }
-    
-//  threshholdread();
-//  threshholdget();
-//  delay(3000);
+//  while(1) {
+//    do{
+//      temp = switchread();
+//    }while(temp==0);
+//    sw = temp;
+//    do{
+//      temp = switchread();
+//    }while(temp==sw);
+//    do{
+//      temp = switchread();
+//    }while(temp==0);
+//    sw2 = temp;
+//    do{
+//      temp = switchread();
+//    }while(temp==sw2);
+//    do{
+//      temp = switchread();
+//    }while(temp!=0);
+//    
+//    if(sw == 2 && sw2 == 2) {
+//      threshholdread();
+//    }
+//    else if(sw == 2 && sw2 == 3) {
+//      leftPrefer=false;
+//      beepbuzzer();
+//      delay(100);
+//    }
+//    else if(sw == 3 && sw2 == 2) {
+//      leftPrefer=true;
+//      beepbuzzer();
+//      delay(100);
+//      beepbuzzer();
+//    }
+//    else if(sw == 3 && sw2 == 3) {
+//      threshholdget();
+//      break;
+//    }
+//  }
+
+  pinMode(2, INPUT);
+  if(digitalRead(2)==HIGH) threshholdread();
+  threshholdget();
+  delay(3000);
   mySerial.flush();
 }
 
@@ -182,16 +183,17 @@ void loop()
 {//wallget(); wallfollowRight();return;
   lineFollowing();
   delay(SETTLE_DELAY);
+  
   /*Serial.print(rightMotorReading);
   Serial.print(" ");
   Serial.print(obj_found);
   Serial.print(' ');
   Serial.println(leftMotorReading);*/
 //      errorCalculation();
-//      for (int i = 0; i < 7; i++) {
-//        Serial.print(S[i]);
-//        Serial.print(' ');
-//      }
+      for (int i = 0; i < 7; i++) {
+        Serial.print(S[i]);
+        Serial.print(' ');
+      }
 //      Serial.print('\t');
 //      Serial.print(currentError);
 //      Serial.print(' ');
@@ -204,118 +206,119 @@ void loop()
 //      Serial.print(outOfLine);
 //      Serial.print('\t');
 //      Serial.print(blackline);
-//      Serial.println(' ');
+      Serial.println(' ');
 //      return;
-       if(S[0]+S[1]+S[2]==3 && S[6]+S[5]==0) {
-                        hardbreak();
-                        delay(10);
-                        intersection_LeftTurn();
-                        outOfLine = notOut;
-       }
-       else 
-       if(currentError == -7) {
-                        if(outOfLine == leftOut) {
-				stop();
-                                delay(10);
-				errorCalculation();
-				if(currentError == -7) {
-                                         bluef();
-  
-                                         LeftTurn();		// double checking for extra safety //
-                                         outOfLine = notOut;
-                                 }
-//				if(analogRead(MR) > threshhold[6]) outOfLine = rightOut;
-//				else if(analogRead(ML) > threshhold[0]) outOfLine = leftOut;
-			}
-			else if(outOfLine == rightOut) {
-				stop();
-                                delay(10);
-				errorCalculation();
-				if(currentError == -7) {
-                                         redf();
-  
-                                       RightTurn();		// double checking for extra safety //
-                                       outOfLine = notOut;
-                                 }
-//				if(analogRead(MR) > threshhold[6]) outOfLine = rightOut;
-//				else if(analogRead(ML) > threshhold[0]) outOfLine = leftOut;
-			}
-                        else if(currentError == -7 && outOfLine == notOut ) {
-                                stop();
-                                delay(30);
-                                //LeftTurn();
-                                wallget();
-                                if(SL>0 || SR>0)    //originally it should be SL>0 && SR>0
-                                {
-                                  while(irUpdate()==0) {
-                                    wallget();
-                                    while(SR>0) {       
-                                      if(SM>0 && SM<18) {
-                                        hardbreak();
-                                        delay(20);
-                                        wallget();
-                                        if(SM>0 && SM<18){
-                                          blindLeft90();
-                                          wheel(-70,70);
-                                          do{
-                                            wallget();
-                                          }while(SM>18 || SL>0 || SR==0);
-                                          break;
-                                        }
-                                        else stop();
-                                      }
-                                      else wallfollowRight();
-                                      wallget(); 
-                                    }
-                                    if(irUpdate()>0) break;
-                                    while(SL>0) {
-                                      if(SM>0 && SM<18) {
-                                        hardbreak();
-                                        delay(20);
-                                        wallget();
-                                        if(SM>0 && SM<18){
-                                          blindRight90();
-                                          wheel(70,-70);
-                                          do{
-                                            wallget();
-                                          }while(SM>18 || SR>0 || SL==0);
-                                          break;
-                                        }
-                                        else stop();
-                                      }
-                                      else wallfollowLeft();
-                                      wallget();
-                                    }
-                                  }
-                                }
-//                                else {
-//                                  LeftTurn();
+//here
+//       if(S[0]+S[1]+S[2]==3 && S[6]+S[5]==0) {
+//                        hardbreak();
+//                        delay(10);
+//                        intersection_LeftTurn();
+//                        outOfLine = notOut;
+//       }
+//       else 
+//       if(currentError == -7) {
+//                        if(outOfLine == leftOut) {
+//				stop();
+//                                delay(10);
+//				errorCalculation();
+//				if(currentError == -7) {
+//                                         bluef();
+//  
+//                                         LeftTurn();		// double checking for extra safety //
+//                                         outOfLine = notOut;
+//                                 }
+////				if(analogRead(MR) > threshhold[6]) outOfLine = rightOut;
+////				else if(analogRead(ML) > threshhold[0]) outOfLine = leftOut;
+//			}
+//			else if(outOfLine == rightOut) {
+//				stop();
+//                                delay(10);
+//				errorCalculation();
+//				if(currentError == -7) {
+//                                         redf();
+//  
+//                                       RightTurn();		// double checking for extra safety //
+//                                       outOfLine = notOut;
+//                                 }
+////				if(analogRead(MR) > threshhold[6]) outOfLine = rightOut;
+////				else if(analogRead(ML) > threshhold[0]) outOfLine = leftOut;
+//			}
+//                        else if(currentError == -7 && outOfLine == notOut ) {
+//                                stop();
+//                                delay(30);
+//                                //LeftTurn();
+//                                wallget();
+//                                if(SL>0 || SR>0)    //originally it should be SL>0 && SR>0
+//                                {
+//                                  while(irUpdate()==0) {
+//                                    wallget();
+//                                    while(SR>0) {       
+//                                      if(SM>0 && SM<18) {
+//                                        hardbreak();
+//                                        delay(20);
+//                                        wallget();
+//                                        if(SM>0 && SM<18){
+//                                          blindLeft90();
+//                                          wheel(-70,70);
+//                                          do{
+//                                            wallget();
+//                                          }while(SM>18 || SL>0 || SR==0);
+//                                          break;
+//                                        }
+//                                        else stop();
+//                                      }
+//                                      else wallfollowRight();
+//                                      wallget(); 
+//                                    }
+//                                    if(irUpdate()>0) break;
+//                                    while(SL>0) {
+//                                      if(SM>0 && SM<18) {
+//                                        hardbreak();
+//                                        delay(20);
+//                                        wallget();
+//                                        if(SM>0 && SM<18){
+//                                          blindRight90();
+//                                          wheel(70,-70);
+//                                          do{
+//                                            wallget();
+//                                          }while(SM>18 || SR>0 || SL==0);
+//                                          break;
+//                                        }
+//                                        else stop();
+//                                      }
+//                                      else wallfollowLeft();
+//                                      wallget();
+//                                    }
+//                                  }
 //                                }
-     		        }
-                        //wall code
-                      
-      }
-      else if(currentError == 0 && allBlack()==1){ //end condition
-         bluef();
-              
-         errorCalculation();
-         if(currentError==0){
-            wheel(200,200);
-            delay(40);
-            errorCalculation();
-            if(currentError==0){
-              wheel(200,200);
-              delay(50);
-              hardbreak();
-              Stop();
-              while(1){
-                bluef();
-                redf();
-              }
-            }
-          }
-      }      
-      //
+////                                else {
+////                                  LeftTurn();
+////                                }
+//     		        }
+//                        //wall code
+//                      
+//      }
+//      else if(currentError == 0 && allBlack()==1){ //end condition
+//         bluef();
+//              
+//         errorCalculation();
+//         if(currentError==0){
+//            wheel(200,200);
+//            delay(40);
+//            errorCalculation();
+//            if(currentError==0){
+//              wheel(200,200);
+//              delay(50);
+//              hardbreak();
+//              Stop();
+//              while(1){
+//                bluef();
+//                redf();
+//              }
+//            }
+//          }
+//      }      
+//      //
 
     if(analogRead(MR) < threshhold[6]) {
       delay(5);
